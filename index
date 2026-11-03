@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ปฏิทินขับเคลื่อนงาน สช.นราธิวาส</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Noto+Serif+Thai:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: sticky toolbar over a working calendar; month grid + day panel, agenda list, and a fiscal-year matrix that mirrors the project form's Oct–Sep table. */
+:root{
+  --bg:#F2F6F5; --surface:#FFFFFF; --surface2:#E8EFEE; --ink:#10302D; --muted:#5A726F; --line:#CFDBD9;
+  --accent:#0B6B63; --accent-ink:#FFFFFF; --gold:#B7791F; --danger:#B3261E;
+  --chip-l:90%; --chip-t:26%; --chip-b:72%;
+  --font-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+  --font-display:"Noto Serif Thai","IBM Plex Sans Thai",serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1918; --surface:#152624; --surface2:#1C312F; --ink:#E4F0EE; --muted:#93AFAB; --line:#2B4643;
+  --accent:#4FC3B6; --accent-ink:#06211E; --gold:#E3B15A; --danger:#FF8A80;
+  --chip-l:24%; --chip-t:86%; --chip-b:42%; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1918; --surface:#152624; --surface2:#1C312F; --ink:#E4F0EE; --muted:#93AFAB; --line:#2B4643;
+  --accent:#4FC3B6; --accent-ink:#06211E; --gold:#E3B15A; --danger:#FF8A80;
+  --chip-l:24%; --chip-t:86%; --chip-b:42%; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:15px;line-height:1.5;margin:0;
+  padding-block:0 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1180px;margin:0 auto}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top{padding:22px 0 14px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between}
+header.top h1{font-family:var(--font-display);font-size:clamp(20px,3.2vw,28px);line-height:1.3;margin:0;text-wrap:balance}
+header.top p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.sync{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.sync.live i{background:#2E9E6B}
+.stats{display:flex;flex-wrap:wrap;gap:8px 28px;padding:12px 0 16px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:14px}
+.stat{display:flex;align-items:baseline;gap:8px}
+.stat b{font-size:26px;font-variant-numeric:tabular-nums;font-weight:600}
+.stat span{color:var(--muted);font-size:13px}
+.toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding:8px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{border:0;background:transparent;padding:7px 14px;font-size:14px}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 14px;font-size:14px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.btn.danger{color:var(--danger)}
+.btn.sm{padding:4px 10px;font-size:13px}
+.spacer{flex:1}
+select,input[type=text],input[type=date],input[type=search],textarea{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:7px 10px;min-width:0;max-width:100%}
+textarea{width:100%;resize:vertical}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:4px 0 12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px}
+.grp{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.grp small{color:var(--muted);font-size:12px;margin-right:2px}
+.cat{--c:hsl(var(--h) 62% var(--chip-l));--t:hsl(var(--h) 60% var(--chip-t));--b:hsl(var(--h) 55% var(--chip-b))}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;border:1px solid var(--b);background:var(--c);color:var(--t);font-size:13px;white-space:nowrap}
+button.tag{opacity:.5}
+button.tag[aria-pressed="true"]{opacity:1;font-weight:500}
+.nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 10px}
+.nav h2{font-family:var(--font-display);font-size:20px;margin:0 8px;min-width:9ch}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.dow{padding:6px;text-align:center;font-size:12.5px;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--line)}
+.day{min-height:104px;padding:4px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);text-align:left;display:flex;flex-direction:column;gap:3px;border-radius:0;min-width:0;border-top:0;border-left:0}
+.day:nth-child(7n){border-right:0}
+.day.out{background:var(--surface2);color:var(--muted)}
+.day.sel{outline:2px solid var(--accent);outline-offset:-2px}
+.day .n{font-size:13px;font-variant-numeric:tabular-nums;width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.day.today .n{background:var(--gold);color:var(--bg);font-weight:600}
+.ev{display:block;width:100%;text-align:left;border:1px solid var(--b);background:var(--c);color:var(--t);border-radius:5px;padding:1px 5px;font-size:12px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ev.done{text-decoration:line-through;opacity:.7}
+.more{font-size:11.5px;color:var(--muted);padding-left:4px}
+.panel{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.panel h3{margin:0 0 8px;font-size:16px}
+.card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:start;padding:10px 0;border-top:1px solid var(--line)}
+.card:first-of-type{border-top:0}
+.card .when{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:7.5ch}
+.card .ttl{font-weight:500;overflow-wrap:anywhere}
+.card .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:2px;overflow-wrap:anywhere}
+.badge{font-size:12px;border-radius:5px;padding:1px 7px;background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.badge.s-done{color:#1d7a4d;border-color:#1d7a4d}
+.badge.s-run{color:var(--accent);border-color:var(--accent)}
+.badge.s-hold{color:var(--danger);border-color:var(--danger)}
+.badge.ex{color:var(--gold);border-color:var(--gold)}
+.mhead{font-family:var(--font-display);font-size:17px;margin:20px 0 4px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:14px}
+th,td{padding:8px 6px;text-align:center;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{background:var(--surface2);font-weight:500;color:var(--muted);font-size:13px}
+td:first-child,th:first-child{text-align:left;padding-left:12px;min-width:200px}
+td button.cell{border:0;background:transparent;min-width:30px;border-radius:6px;padding:2px 6px}
+td button.cell.has{background:var(--c);color:var(--t);font-weight:600;border:1px solid var(--b)}
+tr.sep td{background:var(--surface2);font-size:12px;color:var(--muted);text-align:left;padding-left:12px}
+tfoot td{font-weight:600}
+.empty{padding:28px 8px;text-align:center;color:var(--muted)}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);padding:0;width:min(640px,calc(100vw - 24px));max-height:calc(100vh - 24px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.fm{padding:18px;display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.fm h3{grid-column:1/-1;margin:0;font-family:var(--font-display);font-size:19px}
+.fm label{display:grid;gap:4px;font-size:13px;color:var(--muted);min-width:0}
+.fm label input,.fm label select,.fm label textarea{color:var(--ink);font-size:15px}
+.fm .full{grid-column:1/-1}
+.dis{display:flex;flex-wrap:wrap;gap:6px}
+.dis label{display:inline-flex;grid-template-columns:none;flex-direction:row;align-items:center;gap:5px;color:var(--ink);font-size:13.5px;border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.acts{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.err{color:var(--danger);font-size:13px;grid-column:1/-1;min-height:1em}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:14px;z-index:30;max-width:90vw}
+.whoopt{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink);font-size:15px}
+.note{font-size:12.5px;color:var(--muted);margin-top:18px}
+@media (max-width:640px){
+  .fm{grid-template-columns:1fr}
+  .day{min-height:64px;padding:2px}
+  .ev{font-size:0;height:7px;padding:0;border-radius:4px}
+  .stat b{font-size:22px}
+  .card{grid-template-columns:minmax(0,1fr) auto}
+  .card .when{grid-column:1/-1}
+}
+@media (prefers-reduced-motion:no-preference){.day,.btn{transition:border-color .15s,background .15s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>ปฏิทินขับเคลื่อนงาน กลุ่มพัฒนาคุณภาพและมาตรฐานการศึกษา</h1>
+      <p>สำนักงานการศึกษาเอกชนจังหวัดนราธิวาส · ปีงบประมาณ <span id="fyLabel"></span></p>
+    </div>
+    <div class="sync" id="sync"><i></i><span id="syncTxt">กำลังเชื่อมต่อ…</span><button class="btn sm" id="whoBtn" hidden></button></div>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="มุมมอง">
+      <button data-view="month" aria-pressed="true">เดือน</button>
+      <button data-view="list" aria-pressed="false">รายการ</button>
+      <button data-view="year" aria-pressed="false">ภาพรวมปี</button>
+    </div>
+    <select id="fy" aria-label="ปีงบประมาณ"></select>
+    <button class="btn" id="todayBtn">วันนี้</button>
+    <span class="spacer"></span>
+    <button class="btn" id="exportBtn">ส่งออก CSV</button>
+    <button class="btn primary" id="addBtn">+ เพิ่มงาน</button>
+  </div>
+
+  <div class="filters">
+    <input type="search" id="q" placeholder="ค้นหาชื่องาน โรงเรียน ผู้รับผิดชอบ" aria-label="ค้นหา" style="flex:1 1 220px">
+    <select id="stFilter" aria-label="สถานะ"><option value="">ทุกสถานะ</option></select>
+    <select id="diFilter" aria-label="อำเภอ"><option value="">ทุกอำเภอ</option></select>
+    <select id="ownFilter" aria-label="ผู้เพิ่มงาน"><option value="">ทุกคน</option></select>
+  </div>
+  <div class="legend" id="legend" style="margin-bottom:10px"></div>
+
+  <main id="main"></main>
+  <p class="note">วันที่แสดงเป็นปี พ.ศ. ปีงบประมาณเริ่ม 1 ตุลาคม ถึง 30 กันยายน ทุกคนเห็นงานทั้งหมด แต่แก้ไขหรือลบได้เฉพาะงานที่ตนเองเพิ่ม ผู้ดูแลแก้ไขได้ทุกงาน</p>
+</div>
+
+<dialog id="dlg">
+  <form class="fm" id="form" method="dialog">
+    <h3 id="dlgTitle">เพิ่มงาน</h3>
+    <label class="full">ชื่องาน / กิจกรรม<input type="text" id="f_title" required maxlength="200" placeholder="เช่น นิเทศ ติดตาม การจัดการเรียนรู้ ป.1 รอบที่ 1"></label>
+    <label>ประเภทงาน<select id="f_cat"></select></label>
+    <label>สถานะ<select id="f_status"></select></label>
+    <label>วันที่เริ่ม<input type="date" id="f_start"></label>
+    <label>วันที่สิ้นสุด<input type="date" id="f_end"></label>
+    <div class="full"><div style="font-size:13px;color:var(--muted);margin-bottom:4px">อำเภอ / พื้นที่</div><div class="dis" id="f_dis"></div></div>
+    <label class="full">สถานที่ / โรงเรียนเป้าหมาย<input type="text" id="f_place" maxlength="200" placeholder="เช่น ห้องประชุมใบไม้สีทอง (Google Meet) หรือชื่อโรงเรียน"></label>
+    <label>กลุ่มเป้าหมาย<input type="text" id="f_target" maxlength="160" placeholder="เช่น ครู ป.1 ภาษาไทย 59 คน"></label>
+    <label>ผู้รับผิดชอบ<input type="text" id="f_owner" maxlength="120"></label>
+    <label class="full">โครงการ / กิจกรรมที่เกี่ยวข้อง<input type="text" id="f_project" maxlength="200" placeholder="เช่น โครงการนิเทศ ติดตาม ปี 2570 กิจกรรมที่ 3"></label>
+    <label class="full">บันทึกเพิ่มเติม<textarea id="f_note" rows="3" maxlength="800"></textarea></label>
+    <div class="full" id="f_by" style="font-size:13px;color:var(--muted)"></div>
+    <div class="err" id="f_err" role="alert"></div>
+    <div class="acts">
+      <button class="btn primary" type="submit" id="saveBtn">บันทึก</button>
+      <button class="btn" type="button" id="cancelBtn">ยกเลิก</button>
+      <span class="spacer"></span>
+      <button class="btn danger" type="button" id="delBtn" hidden>ลบงานนี้</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="whoDlg">
+  <form class="fm" id="whoForm" method="dialog">
+    <h3>คุณคือใคร</h3>
+    <p class="full" style="margin:0;color:var(--muted);font-size:14px">เลือกชื่อของคุณ ชื่อนี้จะแสดงเป็นเจ้าของงานที่คุณเพิ่ม และผู้ร่วมงานคนอื่นจะเห็น</p>
+    <div class="full" id="whoList" style="display:grid;gap:6px"></div>
+    <div class="err" id="whoErr" role="alert"></div>
+    <div class="acts"><button class="btn primary" type="submit">ยืนยัน</button><button class="btn" type="button" id="whoCancel">ไว้ทีหลัง</button></div>
+  </form>
+</dialog>
+<div id="toast" hidden></div>
+
+<script>
+(function(){
+"use strict";
+var CATS=[
+ {id:"sup",g:"pos",h:174,n:"นิเทศ ติดตาม ประเมินผล"},
+ {id:"dev",g:"pos",h:200,n:"พัฒนาครู / PLC / อบรม"},
+ {id:"qa", g:"pos",h:232,n:"ประกันคุณภาพ / ประเมินภายนอก"},
+ {id:"rpt",g:"pos",h:150,n:"รายงาน / ระบบสารสนเทศ (NPSSS)"},
+ {id:"onet",g:"pol",h:28,n:"O-NET"},
+ {id:"inet",g:"pol",h:48,n:"I-NET"},
+ {id:"rt",  g:"pol",h:340,n:"RT"},
+ {id:"nt",  g:"pol",h:12,n:"NT"},
+ {id:"pol", g:"pol",h:290,n:"นโยบายอื่น ๆ ของต้นสังกัด"},
+ {id:"mtg", g:"pol",h:90,n:"ประชุม / งานอื่น ๆ"}
+];
+var GROUPS={pos:"งานตามมาตรฐานตำแหน่ง",pol:"งานตามนโยบายต้นสังกัด"};
+var STATUS=[["plan","วางแผน"],["run","กำลังดำเนินการ"],["done","เสร็จสิ้น"],["hold","เลื่อน / ยกเลิก"]];
+var DISTRICTS=["เมืองนราธิวาส","ตากใบ","บาเจาะ","ยี่งอ","ระแงะ","รือเสาะ","ศรีสาคร","แว้ง","สุคิริน","สุไหงโก-ลก","สุไหงปาดี","จะแนะ","เจาะไอร้อง","ระดับจังหวัด / ออนไลน์"];
+var MTH=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+var MS=["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+var DOW=["อา","จ","อ","พ","พฤ","ศ","ส"];
+
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function catOf(id){return CATS.find(function(c){return c.id===id})||CATS[CATS.length-1]}
+function stName(id){var s=STATUS.find(function(x){return x[0]===id});return s?s[1]:""}
+function iso(y,m,d){return y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0")}
+function parse(s){var p=s.split("-");return {y:+p[0],m:+p[1]-1,d:+p[2]}}
+function fmt(s){if(!s)return "";var p=parse(s);return p.d+" "+MS[p.m]+" "+(p.y+543)}
+function fyOf(y,m){return m>=9?y+544:y+543}
+
+var now=new Date(), todayIso=iso(now.getFullYear(),now.getMonth(),now.getDate());
+var st={view:"month",y:now.getFullYear(),m:now.getMonth(),sel:todayIso,cats:{},status:"",dist:"",q:"",owner:""};
+CATS.forEach(function(c){st.cats[c.id]=true});
+var events=[], store=null, editingId=null;
+
+/* ---------- storage: shared db when available, else this browser only ---------- */
+function newId(){return "e"+Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+var LS="nrw-calendar-events-v1";
+function lsRead(){try{return JSON.parse(localStorage.getItem(LS)||"[]")}catch(e){return []}}
+function lsWrite(){try{localStorage.setItem(LS,JSON.stringify(events))}catch(e){}}
+function setSync(live,txt){$("#sync").className="sync"+(live?" live":"");$("#syncTxt").textContent=txt}
+
+var me={uid:null,admin:false}, people={}, pcoll=null, askedWho=false;
+var NAMES=["นายมหามัดอนูวา สามานุง","นายธีรวัช จาปรัง","นางสาวซูรียานี อูเซ็ง","นางอีดาวาตี อาบู","นางสาวฮานีดา เมาะมิง"];
+function ownerName(e){if(!me.uid)return "";if(e.ownerDoc==="seed")return "ตัวอย่างจากผู้ดูแล";return people[e.ownerDoc]||"ยังไม่ระบุชื่อ"}
+function canEdit(e){return !me.uid||me.admin||e.ownerDoc===me.uid}
+function strip(e){var c=Object.assign({},e);delete c.ownerDoc;return c}
+var LOCALMSG="ใช้งานในเครื่องนี้ (ยังไม่เชื่อมต่อฐานข้อมูลร่วม)";
+function initStore(){
+  var done=false;
+  var timer=setTimeout(function(){if(!done){done=true;useLocal(LOCALMSG)}},10000);
+  var C=window.claude&&window.claude.use?window.claude:null;
+  if(!C){done=true;clearTimeout(timer);useLocal(LOCALMSG);return}
+  Promise.all([C.use("db"),C.use("user")]).then(function(r){
+    var db=r[0],user=r[1];
+    if(done)return; done=true; clearTimeout(timer);
+    if(!db||!user){useLocal(LOCALMSG);return}
+    return Promise.all([user.id(),user.canEdit()]).then(function(v){
+      me.uid=v[0]; me.admin=!!v[1];
+      var coll=db.collection("events");
+      pcoll=db.collection("people");
+      function change(target,fn){var ref=coll.doc(target);
+        return ref.get().then(function(sn){var d=sn.exists?sn.data():null;var cur=(d&&Array.isArray(d.items))?d.items:[];return ref.set({items:fn(cur)})})}
+      store={
+        save:function(ev){var t=ev.ownerDoc||me.uid;return change(t,function(cur){var items=cur.filter(function(x){return x.id!==ev.id});items.push(strip(ev));return items})},
+        remove:function(ev){return change(ev.ownerDoc,function(cur){return cur.filter(function(x){return x.id!==ev.id})})}
+      };
+      setSync(true,"บันทึกร่วมกัน · แก้ไขได้เฉพาะงานของตนเอง"+(me.admin?" (ผู้ดูแลแก้ได้ทุกงาน)":""));
+      pcoll.onSnapshot(function(snap){
+        people={};snap.docs.forEach(function(d){people[d.id]=(d.data()||{}).name});
+        updateWho();render();
+        if(!people[me.uid]&&!askedWho){askedWho=true;openWho()}
+      },function(){});
+      coll.onSnapshot(function(snap){
+        var all=[];
+        snap.docs.forEach(function(d){var x=d.data()||{};(Array.isArray(x.items)?x.items:[]).forEach(function(it){var c=Object.assign({},it);c.ownerDoc=d.id;all.push(c)})});
+        events=all; render();
+      },function(e){setSync(false,"อ่านข้อมูลไม่สำเร็จ ("+(e&&e.code||"error")+")");render()});
+    });
+  }).catch(function(){if(!done){done=true;clearTimeout(timer)}useLocal(LOCALMSG)});
+}
+function useLocal(msg){
+  events=lsRead();
+  store={save:function(ev){var i=events.findIndex(function(x){return x.id===ev.id});if(i<0)events.push(ev);else events[i]=ev;lsWrite();render();return Promise.resolve()},
+         remove:function(ev){events=events.filter(function(x){return x.id!==ev.id});lsWrite();render();return Promise.resolve()}};
+  setSync(false,msg);render();
+}
+
+/* ---------- filtering ---------- */
+function visible(){
+  var q=st.q.trim().toLowerCase();
+  return events.filter(function(e){
+    if(!st.cats[e.cat])return false;
+    if(st.status&&e.status!==st.status)return false;
+    if(st.dist&&(e.districts||[]).indexOf(st.dist)<0)return false;
+    if(st.owner&&ownerName(e)!==st.owner)return false;
+    if(q){var hay=[ownerName(e),e.title,e.place,e.owner,e.target,e.project,e.note].join(" ").toLowerCase();if(hay.indexOf(q)<0)return false}
+    return true;
+  });
+}
+function evStart(e){return e.start||""}
+function evEnd(e){return e.end||e.start||""}
+function onDay(e,d){return e.start&&evStart(e)<=d&&d<=evEnd(e)}
+function sortEv(a,b){return (a.start||"9999").localeCompare(b.start||"9999")||String(a.title).localeCompare(String(b.title),"th")}
+function fyRange(fy){var y=fy-543;return [iso(y-1,9,1),iso(y,8,30)]}
+
+/* ---------- render ---------- */
+function render(){
+  var fy=fyOf(st.y,st.m);
+  $("#fyLabel").textContent="พ.ศ. "+fy;
+  var sel=$("#fy"); if(!sel.options.length){for(var y=2569;y<=2574;y++){var o=document.createElement("option");o.value=y;o.textContent="ปีงบประมาณ "+y;sel.appendChild(o)}}
+  sel.value=fy;
+  renderStats(fy); renderLegend();
+  document.querySelectorAll("[data-view]").forEach(function(b){b.setAttribute("aria-pressed",b.dataset.view===st.view)});
+  var main=$("#main");
+  main.innerHTML= st.view==="month"?monthHtml():st.view==="list"?listHtml(fy):yearHtml(fy);
+}
+function renderStats(fy){
+  var r=fyRange(fy), all=events.filter(function(e){return !e.start||(e.start>=r[0]&&e.start<=r[1])});
+  var sch=all.filter(function(e){return e.start}).length;
+  var done=all.filter(function(e){return e.status==="done"}).length;
+  var run=all.filter(function(e){return e.status==="run"}).length;
+  var next=events.filter(function(e){return e.start&&evEnd(e)>=todayIso&&e.status!=="done"&&e.status!=="hold"}).sort(sortEv)[0];
+  $("#stats").innerHTML=
+   '<div class="stat"><b>'+all.length+'</b><span>งานทั้งหมดในปีงบประมาณ</span></div>'+
+   '<div class="stat"><b>'+sch+'</b><span>กำหนดวันแล้ว</span></div>'+
+   '<div class="stat"><b>'+(all.length-sch)+'</b><span>ยังไม่กำหนดวัน</span></div>'+
+   '<div class="stat"><b>'+run+'</b><span>กำลังดำเนินการ</span></div>'+
+   '<div class="stat"><b>'+done+'</b><span>เสร็จสิ้น</span></div>'+
+   (next?'<div class="stat"><span>งานถัดไป</span><b style="font-size:16px;font-weight:500">'+esc(next.title)+' · '+fmt(next.start)+'</b></div>':'');
+}
+function renderLegend(){
+  var h="";
+  ["pos","pol"].forEach(function(g){
+    h+='<div class="grp"><small>'+GROUPS[g]+'</small>';
+    CATS.filter(function(c){return c.g===g}).forEach(function(c){
+      h+='<button class="tag cat" style="--h:'+c.h+'" data-cat="'+c.id+'" aria-pressed="'+st.cats[c.id]+'">'+esc(c.n)+'</button>';
+    });
+    h+='</div>';
+  });
+  $("#legend").innerHTML=h;
+}
+function chip(e){
+  var c=catOf(e.cat);
+  return '<button class="ev cat'+(e.status==="done"?" done":"")+'" style="--h:'+c.h+'" data-edit="'+esc(e.id)+'" title="'+esc(e.title)+(ownerName(e)?" · "+esc(ownerName(e)):"")+'">'+esc(e.title)+'</button>';
+}
+function monthHtml(){
+  var y=st.y,m=st.m, list=visible().filter(function(e){return e.start});
+  var first=new Date(y,m,1).getDay(), dim=new Date(y,m+1,0).getDate();
+  var unsched=visible().filter(function(e){return !e.start}).length;
+  var h='<div class="nav"><button class="btn sm" data-nav="-1" aria-label="เดือนก่อนหน้า">‹</button><h2>'+MTH[m]+' '+(y+543)+'</h2><button class="btn sm" data-nav="1" aria-label="เดือนถัดไป">›</button>'+
+        (unsched?'<span class="badge" style="margin-left:auto">ยังไม่กำหนดวัน '+unsched+' งาน · ดูในมุมมองรายการ</span>':'')+'</div>';
+  h+='<div class="cal">'+DOW.map(function(d){return '<div class="dow">'+d+'</div>'}).join("");
+  var cells=Math.ceil((first+dim)/7)*7;
+  for(var i=0;i<cells;i++){
+    var dt=new Date(y,m,1-first+i), ds=iso(dt.getFullYear(),dt.getMonth(),dt.getDate());
+    var out=dt.getMonth()!==m, evs=list.filter(function(e){return onDay(e,ds)}).sort(sortEv);
+    h+='<div class="day'+(out?" out":"")+(ds===todayIso?" today":"")+(ds===st.sel?" sel":"")+'" data-day="'+ds+'" tabindex="0" role="button" aria-label="'+dt.getDate()+' '+MTH[dt.getMonth()]+' '+(dt.getFullYear()+543)+(evs.length?' มี '+evs.length+' งาน':'')+'">'+
+       '<span class="n">'+dt.getDate()+'</span>'+evs.slice(0,3).map(chip).join("")+(evs.length>3?'<span class="more">+'+(evs.length-3)+' งาน</span>':'')+'</div>';
+  }
+  h+='</div>';
+  var sel=st.sel, se=list.filter(function(e){return onDay(e,sel)}).sort(sortEv);
+  h+='<section class="panel"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><h3 style="margin:0">'+fmt(sel)+'</h3><span class="spacer"></span><button class="btn sm primary" data-addday="'+sel+'">+ เพิ่มงานวันนี้</button></div>'+
+     (se.length?se.map(card).join(""):'<div class="empty" style="padding:14px 0">ยังไม่มีงานในวันที่เลือก</div>')+'</section>';
+  return h;
+}
+function card(e){
+  var c=catOf(e.cat), d=(e.districts||[]).join(", ");
+  var when=e.start?(fmt(e.start)+(evEnd(e)!==e.start?" – "+fmt(evEnd(e)):"")):"ยังไม่กำหนดวัน";
+  var meta=[]; if(ownerName(e))meta.push("เพิ่มโดย: "+esc(ownerName(e)));
+  if(d)meta.push("อำเภอ: "+esc(d)); if(e.place)meta.push("สถานที่: "+esc(e.place)); if(e.target)meta.push("กลุ่มเป้าหมาย: "+esc(e.target));
+  if(e.owner)meta.push("ผู้รับผิดชอบ: "+esc(e.owner)); if(e.project)meta.push("โครงการ: "+esc(e.project));
+  return '<div class="card"><div class="when">'+when+'</div><div><div class="ttl">'+esc(e.title)+'</div>'+
+    '<div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center"><span class="tag cat" style="--h:'+c.h+'">'+esc(c.n)+'</span>'+
+    '<span class="badge s-'+esc(e.status||"plan")+'">'+stName(e.status||"plan")+'</span>'+(e.example?'<span class="badge ex">ตัวอย่าง</span>':'')+(me.uid&&e.ownerDoc===me.uid?'<span class="badge s-run">งานของคุณ</span>':'')+'</div>'+
+    (meta.length?'<div class="meta"><span>'+meta.join('</span><span>')+'</span></div>':'')+
+    (e.note?'<div class="meta">'+esc(e.note)+'</div>':'')+'</div>'+
+    '<button class="btn sm" data-edit="'+esc(e.id)+'">'+(canEdit(e)?"แก้ไข":"ดู")+'</button></div>';
+}
+function listHtml(fy){
+  var r=fyRange(fy), all=visible().filter(function(e){return !e.start||(e.start>=r[0]&&e.start<=r[1])}).sort(sortEv);
+  if(!all.length)return '<div class="panel empty">ยังไม่มีงานที่ตรงกับตัวกรอง กด “+ เพิ่มงาน” เพื่อเริ่มกรอกปฏิทิน</div>';
+  var h="", cur="";
+  all.forEach(function(e){
+    var key=e.start?(parse(e.start).y*100+parse(e.start).m):"none";
+    if(key!==cur){cur=key;h+='<div class="mhead">'+(e.start?MTH[parse(e.start).m]+" "+(parse(e.start).y+543):"ยังไม่กำหนดวัน")+'</div>'}
+    h+='<div class="panel" style="padding:2px 16px;margin-top:6px">'+card(e)+'</div>';
+  });
+  return h;
+}
+function yearHtml(fy){
+  var r=fyRange(fy), y0=fy-544, order=[9,10,11,0,1,2,3,4,5,6,7,8], list=visible().filter(function(e){return e.start&&e.start>=r[0]&&e.start<=r[1]});
+  function cnt(cid,m){return list.filter(function(e){var p=parse(e.start);return (!cid||e.cat===cid)&&p.m===m}).length}
+  var h='<div class="tbl"><table><thead><tr><th>ประเภทงาน (นับตามเดือนที่เริ่ม)</th>'+order.map(function(m){return '<th>'+MS[m]+'</th>'}).join("")+'<th>รวม</th></tr></thead><tbody>';
+  ["pos","pol"].forEach(function(g){
+    h+='<tr class="sep"><td colspan="14">'+GROUPS[g]+'</td></tr>';
+    CATS.filter(function(c){return c.g===g}).forEach(function(c){
+      var tot=0;
+      h+='<tr><td>'+esc(c.n)+'</td>'+order.map(function(m){var n=cnt(c.id,m);tot+=n;var yy=m>=9?y0:y0+1;
+        return '<td>'+(n?'<button class="cell has cat" style="--h:'+c.h+'" data-jump="'+yy+'-'+m+'">'+n+'</button>':'<span style="color:var(--line)">·</span>')+'</td>'}).join("")+'<td><b>'+tot+'</b></td></tr>';
+    });
+  });
+  h+='</tbody><tfoot><tr><td>รวมทุกประเภท</td>'+order.map(function(m){return '<td>'+cnt(null,m)+'</td>'}).join("")+'<td>'+list.length+'</td></tr></tfoot></table></div>';
+  return h;
+}
+
+/* ---------- form ---------- */
+function openForm(ev,presetDate){
+  var d=$("#dlg"); editingId=ev?ev.id:null;
+  $("#dlgTitle").textContent=ev?"แก้ไขงาน":"เพิ่มงาน";
+  $("#f_title").value=ev?ev.title:""; $("#f_cat").value=ev?ev.cat:"sup"; $("#f_status").value=ev?(ev.status||"plan"):"plan";
+  $("#f_start").value=ev?(ev.start||""):(presetDate||""); $("#f_end").value=ev?(ev.end||""):"";
+  $("#f_place").value=ev?ev.place||"":""; $("#f_target").value=ev?ev.target||"":""; $("#f_owner").value=ev?ev.owner||"":"";
+  $("#f_project").value=ev?ev.project||"":""; $("#f_note").value=ev?ev.note||"":""; $("#f_err").textContent="";
+  var ds=ev?(ev.districts||[]):[];
+  document.querySelectorAll("#f_dis input").forEach(function(i){i.checked=ds.indexOf(i.value)>=0});
+  var ro=!!ev&&!canEdit(ev);
+  $("#f_by").textContent=(ev&&ownerName(ev))?"เจ้าของงาน: "+ownerName(ev):(me.uid&&people[me.uid]?"เจ้าของงาน: "+people[me.uid]:"");
+  document.querySelectorAll("#form input,#form select,#form textarea").forEach(function(i){i.disabled=ro});
+  $("#saveBtn").hidden=ro; $("#cancelBtn").textContent=ro?"ปิด":"ยกเลิก";
+  if(ro)$("#dlgTitle").textContent="ดูรายละเอียดงาน (แก้ไขได้เฉพาะเจ้าของงาน)";
+  $("#delBtn").hidden=!ev||ro; $("#delBtn").textContent="ลบงานนี้"; delArmed=false;
+  if(d.showModal)d.showModal(); else d.setAttribute("open","");
+  $("#f_title").focus();
+}
+var delArmed=false;
+function closeForm(){var d=$("#dlg");if(d.close)d.close();else d.removeAttribute("open")}
+function toast(t){var el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(function(){el.hidden=true},2600)}
+
+function setup(){
+  $("#f_cat").innerHTML=["pos","pol"].map(function(g){return '<optgroup label="'+GROUPS[g]+'">'+CATS.filter(function(c){return c.g===g}).map(function(c){return '<option value="'+c.id+'">'+esc(c.n)+'</option>'}).join("")+'</optgroup>'}).join("");
+  $("#f_status").innerHTML=STATUS.map(function(s){return '<option value="'+s[0]+'">'+s[1]+'</option>'}).join("");
+  $("#stFilter").innerHTML+=STATUS.map(function(s){return '<option value="'+s[0]+'">'+s[1]+'</option>'}).join("");
+  $("#diFilter").innerHTML+=DISTRICTS.map(function(d){return '<option>'+esc(d)+'</option>'}).join("");
+  $("#f_dis").innerHTML=DISTRICTS.map(function(d){return '<label><input type="checkbox" value="'+esc(d)+'"> '+esc(d)+'</label>'}).join("");
+
+  document.addEventListener("click",function(e){
+    var t=e.target.closest("[data-view],[data-cat],[data-nav],[data-edit],[data-addday],[data-jump],[data-day]"); if(!t)return;
+    if(t.dataset.view){st.view=t.dataset.view;render()}
+    else if(t.dataset.cat){st.cats[t.dataset.cat]=!st.cats[t.dataset.cat];render()}
+    else if(t.dataset.nav){var dt=new Date(st.y,st.m+ +t.dataset.nav,1);st.y=dt.getFullYear();st.m=dt.getMonth();render()}
+    else if(t.dataset.edit){var ev=events.find(function(x){return x.id===t.dataset.edit});if(ev)openForm(ev)}
+    else if(t.dataset.addday){openForm(null,t.dataset.addday)}
+    else if(t.dataset.jump){var p=t.dataset.jump.split("-");st.y=+p[0];st.m=+p[1];st.view="month";render()}
+    else if(t.dataset.day){st.sel=t.dataset.day;var p2=parse(st.sel);if(p2.m!==st.m){st.y=p2.y;st.m=p2.m}render()}
+  });
+  document.addEventListener("keydown",function(e){
+    if((e.key==="Enter"||e.key===" ")&&e.target.dataset&&e.target.dataset.day){e.preventDefault();e.target.click()}
+  });
+  $("#fy").addEventListener("change",function(){var fy=+this.value;st.y=fy-544;st.m=9;st.sel=iso(st.y,9,1);render()});
+  $("#todayBtn").addEventListener("click",function(){st.y=now.getFullYear();st.m=now.getMonth();st.sel=todayIso;st.view="month";render()});
+  $("#addBtn").addEventListener("click",function(){openForm(null,st.view==="month"?st.sel:"")});
+  $("#q").addEventListener("input",function(){st.q=this.value;render()});
+  $("#stFilter").addEventListener("change",function(){st.status=this.value;render()});
+  $("#diFilter").addEventListener("change",function(){st.dist=this.value;render()});
+  $("#cancelBtn").addEventListener("click",closeForm);
+  $("#delBtn").addEventListener("click",function(){
+    if(!delArmed){delArmed=true;this.textContent="กดอีกครั้งเพื่อยืนยันการลบ";return}
+    var cur=events.find(function(x){return x.id===editingId}); store.remove(cur).then(function(){closeForm();toast("ลบงานแล้ว")}).catch(function(){toast("ลบไม่สำเร็จ ตรวจสอบสิทธิ์การแก้ไข")});
+  });
+  $("#form").addEventListener("submit",function(e){
+    e.preventDefault();
+    var title=$("#f_title").value.trim(), s=$("#f_start").value, en=$("#f_end").value;
+    if(!title){$("#f_err").textContent="กรอกชื่องานก่อนบันทึก";return}
+    if(en&&!s){$("#f_err").textContent="ระบุวันที่เริ่มเมื่อมีวันที่สิ้นสุด";return}
+    if(s&&en&&en<s){$("#f_err").textContent="วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่ม";return}
+    var old=editingId?events.find(function(x){return x.id===editingId}):null;
+    var ev={id:editingId||newId(),title:title,cat:$("#f_cat").value,status:$("#f_status").value,start:s,end:en,
+      districts:Array.prototype.map.call(document.querySelectorAll("#f_dis input:checked"),function(i){return i.value}),
+      place:$("#f_place").value.trim(),target:$("#f_target").value.trim(),owner:$("#f_owner").value.trim(),
+      project:$("#f_project").value.trim(),note:$("#f_note").value.trim(),example:false,updated:Date.now(),ownerDoc:old?old.ownerDoc:undefined};
+    $("#saveBtn").disabled=true;
+    store.save(ev).then(function(){closeForm();toast("บันทึกแล้ว");if(s){var p=parse(s);st.sel=s;st.y=p.y;st.m=p.m}render()})
+      .catch(function(){$("#f_err").textContent="บันทึกไม่สำเร็จ ตรวจสอบสิทธิ์การแก้ไขแล้วลองอีกครั้ง"})
+      .then(function(){$("#saveBtn").disabled=false});
+  });
+  $("#exportBtn").addEventListener("click",exportCsv);
+  $("#ownFilter").innerHTML+=NAMES.map(function(n){return '<option>'+esc(n)+'</option>'}).join("");
+  $("#ownFilter").addEventListener("change",function(){st.owner=this.value;render()});
+  $("#whoBtn").addEventListener("click",openWho);
+  $("#whoCancel").addEventListener("click",closeWho);
+  $("#whoForm").addEventListener("submit",function(e){
+    e.preventDefault();var c=document.querySelector('#whoList input:checked');
+    if(!c){$("#whoErr").textContent="เลือกชื่อของคุณก่อนยืนยัน";return}
+    pcoll.doc(me.uid).set({name:c.value}).then(function(){closeWho();toast("บันทึกชื่อแล้ว")}).catch(function(){$("#whoErr").textContent="บันทึกชื่อไม่สำเร็จ ลองอีกครั้ง"});
+  });
+}
+
+function updateWho(){var b=$("#whoBtn");if(!pcoll){b.hidden=true;return}b.hidden=false;b.textContent=people[me.uid]?("ชื่อของฉัน: "+people[me.uid]):"เลือกชื่อของฉัน"}
+function openWho(){
+  var cur=people[me.uid]||"";
+  $("#whoList").innerHTML=NAMES.map(function(n,i){return '<label class="whoopt"><input type="radio" name="who" value="'+esc(n)+'"'+(n===cur?" checked":"")+'> '+esc(n)+'</label>'}).join("");
+  $("#whoErr").textContent="";var d=$("#whoDlg");if(d.showModal)d.showModal();else d.setAttribute("open","");
+}
+function closeWho(){var d=$("#whoDlg");if(d.close)d.close();else d.removeAttribute("open")}
+
+function exportCsv(){
+  var rows=[["ผู้เพิ่มงาน","ชื่องาน","ประเภทงาน","กลุ่มงาน","สถานะ","วันที่เริ่ม","วันที่สิ้นสุด","อำเภอ","สถานที่/โรงเรียน","กลุ่มเป้าหมาย","ผู้รับผิดชอบ","โครงการ","บันทึก"]];
+  visible().sort(sortEv).forEach(function(e){var c=catOf(e.cat);
+    rows.push([ownerName(e),e.title,c.n,GROUPS[c.g],stName(e.status||"plan"),fmt(e.start),fmt(evEnd(e)),(e.districts||[]).join("; "),e.place,e.target,e.owner,e.project,e.note])});
+  var csv="\ufeff"+rows.map(function(r){return r.map(function(v){return '"'+String(v==null?"":v).replace(/"/g,'""')+'"'}).join(",")}).join("\r\n");
+  var fn="ปฏิทินงาน_ปีงบ"+fyOf(st.y,st.m)+".csv";
+  var p=(window.claude&&window.claude.use)?window.claude.use("downloads"):Promise.resolve(null);
+  Promise.resolve(p).then(function(dl){
+    if(!dl)throw 0;
+    return dl.save({filename:fn,data:new Blob([csv],{type:"text/csv;charset=utf-8"})}).then(function(){toast("ส่งออกไฟล์แล้ว")});
+  }).catch(function(err){
+    if(err&&err.code==="declined")return;
+    // นอกอาร์ติแฟกต์: ดาวน์โหลดไฟล์ CSV โดยตรง
+    try{
+      var a=document.createElement("a");
+      a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+      a.download=fn;document.body.appendChild(a);a.click();a.remove();
+      toast("ส่งออกไฟล์แล้ว");
+    }catch(x){toast("ส่งออกไม่สำเร็จ")}
+  });
+}
+
+setup(); render(); initStore();
+})();
+</script>
+</body>
+</html>
